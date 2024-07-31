@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>vnStat Daemon</title>
+    <meta http-equiv="refresh" content="300"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+{{- define "view" }}
+<figure><img src="{{ vnstati . 1 }}" srcset="{{ vnstati . 2 }} 2x,{{ vnstati . 3 }} 3x" alt="{{ . }}"/></figure>
+{{- end }}
+{{- template "view" "vsummary" }}
+{{- template "view" "5min-graph" }}
+{{- template "view" "daily" }}
+{{- template "view" "monthly" }}
+{{- template "view" "yearly" }}
+</body>
+</html>
