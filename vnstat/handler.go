@@ -1,7 +1,6 @@
 package vnstat
 
 import (
-	"bytes"
 	"embed"
 	"html/template"
 	"log"
@@ -59,11 +58,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		_ = h.Template.ExecuteTemplate(w, "index.gohtml", nil)
 	} else if r.URL.Path == "/vnstat.json" {
 		header.Set("Content-Type", "text/json")
+		header.Set("Content-Type", "text/json")
 		query := r.URL.Query()
-		callback := query.Get("callback")
 		begin, _ := time.Parse(time.DateOnly, query.Get("begin"))
 		end, _ := time.Parse(time.DateOnly, query.Get("end"))
-		h.ServeJSON(w, callback, begin, end)
+		h.ServeJSON(w, begin, end)
 	} else if pathname, ok := strings.CutPrefix(r.URL.Path, "/vnstati/"); ok {
 		header.Set("Content-Type", "image/png")
 		header.Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -87,29 +86,18 @@ func (h *Handler) vnstati(view string) template.HTML {
 	return img.HTML(2, 3, 4, 5)
 }
 
-func (h *Handler) ServeJSON(w http.ResponseWriter, callback string, begin, end time.Time) {
+func (h *Handler) ServeJSON(w http.ResponseWriter, begin, end time.Time) {
 	cmd := exec.Command("vnstat", "--json")
+	cmd.Stdout = w
 	if !begin.IsZero() {
 		cmd.Args = append(cmd.Args, "--begin", begin.Format(time.DateOnly))
 	}
 	if !end.IsZero() {
 		cmd.Args = append(cmd.Args, "--end", end.Format(time.DateOnly))
 	}
-	output, err := cmd.Output()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := cmd.Run(); err != nil {
+		log.Println(err)
 	}
-	var buf bytes.Buffer
-	if len(callback) > 0 {
-		buf.WriteString(callback)
-		buf.WriteByte('(')
-		buf.Write(output)
-		buf.WriteByte(')')
-		buf.WriteByte(';')
-	} else {
-		buf.Write(output)
-	}
-	_, _ = buf.WriteTo(w)
 }
 
 func (h *Handler) ServeImage(w http.ResponseWriter, view string, scale int) {
