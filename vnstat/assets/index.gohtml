@@ -2,18 +2,23 @@
 <html lang="en-US">
 <head>
     <title>vnStat Daemon</title>
-    <meta http-equiv="refresh" content="300"/>
     <meta name="robots" content="noindex, nofollow"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 </head>
 <body>
-{{- define "view" }}
-<figure><img src="{{ vnstati . 1 }}" srcset="{{ vnstati . 2 }} 2x,{{ vnstati . 3 }} 3x" alt="{{ . }}"/></figure>
-{{- end }}
-{{- template "view" "vsummary" }}
-{{- template "view" "5min-graph" }}
-{{- template "view" "daily" }}
-{{- template "view" "monthly" }}
-{{- template "view" "yearly" }}
+<figure>{{- vnstati "vsummary" -}}</figure>
+<figure>{{- vnstati "5min-graph" -}}</figure>
+<figure>{{- vnstati "daily" -}}</figure>
+<figure>{{- vnstati "monthly" -}}</figure>
+<figure>{{- vnstati "yearly" -}}</figure>
+<script>
+function reloadImages() {
+    for (const image of document.images) {
+        image.replaceWith(image.cloneNode(true));
+    }
+}
+
+setInterval(reloadImages, 300_000);
+</script>
 </body>
 </html>
